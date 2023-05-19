@@ -18,6 +18,7 @@ public:
         	cv_.notify_all();
         	cv_.wait(lock);
     	}
+		cv_.notify_one();
  	}
 
 	void pong()
@@ -30,6 +31,7 @@ public:
         	cv_.notify_all();
         	cv_.wait(lock);
     	}
+		cv_.notify_one();
 	}
 
 private:
