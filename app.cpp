@@ -5,6 +5,7 @@
 
 class PingPong
 {
+	
 public:
 	static constexpr std::size_t MAX = 3;
 
@@ -14,15 +15,19 @@ public:
     	while (count_.load() < MAX)
     	{
         	std::cout << "Ping" << std::endl;
+			order_ = true;
         	count_++;
         	cv_.notify_all();
         	cv_.wait(lock);
     	}
+		cv_.notify_one();
  	}
 
 	void pong()
 	{
     	std::unique_lock<std::mutex> lock(m_);
+		cv_.wait(lock, [this]{return order_;});
+
     	while (count_.load() < MAX)
     	{
         	std::cout << "Pong" << std::endl;
@@ -30,10 +35,12 @@ public:
         	cv_.notify_all();
         	cv_.wait(lock);
     	}
+		cv_.notify_one();
 	}
 
 private:
 	std::atomic<std::size_t> count_{0};
+	bool order_ = false;
 	std::mutex m_;
 	std::condition_variable cv_;
 };
